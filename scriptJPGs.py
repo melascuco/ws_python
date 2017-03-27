@@ -5,19 +5,31 @@
 
 import os, shutil
 import logging
-import requests
+import requests, bs4
 
 logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')
 
 logging.debug('Start of program')
 print(' Script para descargar y renombrar los JPGs '.center(80,"~"));
 
-os.path.join('C:\\jmario\\temp\\python\\sampledir')
 print(os.getcwd())
 print(os.listdir())
-os.chdir("sampledir")
-print(os.getcwd())
+#os.chdir("sampledir")
 
+# logging.debug('Downloading...')
+# res = requests.get('https://www.adictosaltrabajo.com/wp-content/uploads/2017/02/1-1024x590.png')
+# logging.debug('Downloaded!')
+
+# res.raise_for_status()
+# playFile = open('file.png', 'wb')
+# for chunk in res.iter_content(100000):
+	# playFile.write(chunk)
+# playFile.close()
+
+res = requests.get('http://www.fast-agile.com/method')
+res.raise_for_status()
+noStarchSoup = bs4.BeautifulSoup(res.text, "html.parser")
+type(noStarchSoup)
 
 # Create results folder
 
