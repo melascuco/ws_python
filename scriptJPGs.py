@@ -1,55 +1,67 @@
-#! python3
-# scriptJPGs.py
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # pip install requests
+# pip install beautifulsoup4
 
 import os, shutil
 import logging
 import requests, bs4
+import urllib.request
 
 logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')
 
+FOLDER_NAME = 'resultingJPGs'
+URL_BASE = 'http://www.....ies_part_'
+URL_BASE_B = '/CI20'
+FILE_NAME_BASE = 's_s_c_'
+PAGE_START = 1
+PAGE_END = 1
+
 logging.debug('Start of program')
-print(' Script para descargar y renombrar los JPGs '.center(80,"~"));
+print(' Script to download and rename imgs in consecutive urls '.center(80,"~"))
 
-print(os.getcwd())
-print(os.listdir())
-#os.chdir("sampledir")
+if not os.path.exists(FOLDER_NAME):
+    logging.debug('Creating new folder')
+    os.makedirs(FOLDER_NAME)
+os.chdir(FOLDER_NAME)
+print('Destination folder: ' + os.getcwd())
 
-# logging.debug('Downloading...')
-# res = requests.get('https://www.adictosaltrabajo.com/wp-content/uploads/2017/02/1-1024x590.png')
-# logging.debug('Downloaded!')
+for urlIndex in range(PAGE_START, PAGE_END + 1):
+    logging.info('Page: ' + str(urlIndex) + '... until ' + PAGE_END)
+    currentPageA = URL_BASE + str(urlIndex)
+    logging.debug('current page 1-20:' + currentPageA)
+    currentPageB = URL_BASE + str(urlIndex) + URL_BASE_B
+    logging.debug('current page 21-40:' + currentPageB)
 
-# res.raise_for_status()
-# playFile = open('file.png', 'wb')
-# for chunk in res.iter_content(100000):
-	# playFile.write(chunk)
-# playFile.close()
+    resA = requests.get(currentPageA)
+    resA.raise_for_status()
+    resASoup = bs4.BeautifulSoup(resA.text, "lxml")
+    logging.debug('Current page A is loaded!')
+    picsA = resASoup.select('div[class="photoset"] a img')
+    indexForPics = 0
+    for picA in picsA:
+        indexForPics = indexForPics + 1
+        urlToDownload = picA.get('src')
+        logging.debug('To download: ' + urlToDownload)
+        extension = urlToDownload[-4:]
+        fileName = FILE_NAME_BASE + 'page' + str(urlIndex).rjust(4,'0') + '_pic' + str(indexForPics).rjust(2,'0') + extension
+        logging.debug('File name: ' + fileName)
+        urllib.request.urlretrieve (urlToDownload, fileName)
 
-res = requests.get('http://www.fast-agile.com/method')
-res.raise_for_status()
-noStarchSoup = bs4.BeautifulSoup(res.text, "html.parser")
-type(noStarchSoup)
+    resB = requests.get(currentPageA)
+    resB.raise_for_status()
+    resBSoup = bs4.BeautifulSoup(resB.text, "lxml")
+    logging.debug('Current page B is loaded!')
 
-# Create results folder
+    picsB = resBSoup.select('div[class="photoset"] a img')
+    for picB in picsB:
+        indexForPics = indexForPics + 1
+        urlToDownload = picB.get('src')
+        logging.debug('To download: ' + urlToDownload)
+        extension = urlToDownload[-4:]
+        fileName = FILE_NAME_BASE + 'page' + str(urlIndex).rjust(4,'0') + '_pic' + str(indexForPics).rjust(2,'0') + extension
+        logging.debug('File name: ' + fileName)
+        urllib.request.urlretrieve (urlToDownload, fileName)
 
-# Takes a URL of a JPG and downloads it
-# Asignar variables a cada parte de la url
-
-# Bucle que abarque todas las páginas (según argumentos?)
-
-# Descargar el html
-
-# Abrir el html como string
-
-# Buscar en el html el link a los 20 jpgs -> lista
-
-# Borrar el html
-
-# Recorrer la lista de 20 jpgs y descargar uno por uno
-
-# Rename the JPG just downloaded
-#shutil.move('fichero.txt', 'fichero_renombrado.txt')
-# os.unlink('fichero_renombrado.txt')
-
-print(' Fin '.center(80,"~"));
+print(' Fin '.center(80,"~"))
